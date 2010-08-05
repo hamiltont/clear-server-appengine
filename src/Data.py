@@ -12,7 +12,6 @@ from Utils import GqlEncoder
 class Data(db.Model):
     test_id = db.IntegerProperty()
     device_id = db.IntegerProperty()
-    sensor = db.IntegerProperty()
     created = db.DateTimeProperty(auto_now_add=True)
     content = SerializableProperty()
 
@@ -28,16 +27,13 @@ class RESTData(webapp.RequestHandler):
             self.response.out.write(GqlEncoder().encode(datum))
     def post(self):
             decoded = simplejson.JSONDecoder().decode(self.request.body)
+            
             data = Data()
             data.test_id = decoded.get('test_id')
-            data.sensor = decoded.get('sensor')
             data.device_id = decoded.get('device_id')
-            del decoded['test_id']
-            del decoded['sensor']
-            del decoded['device_id']
-            data.content = decoded
-            
+            data.content = decoded.get('content')
             data.put()
+            
             self.response.set_status(201)
             self.response.out.write(simplejson.JSONEncoder().encode({"id":data.key().id()}))
     
